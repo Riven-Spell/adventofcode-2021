@@ -21,6 +21,6 @@ var RegisteredDays = []struct{
 	{
 		Solution: &Day1Solution{},
 		StringInput: &inputs.Day1,
-		ExpectedOutputs: []string{"", ""},
+		ExpectedOutputs: []string{"1226", "1252"},
 	},
 }
