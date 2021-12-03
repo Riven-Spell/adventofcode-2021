@@ -13,19 +13,24 @@ type Solution interface {
 	Part2() string
 }
 
-var RegisteredDays = []struct{
+var RegisteredDays = []struct {
 	Solution        Solution // sample solution can be found in ./sampleday.go
-	StringInput     *string // inputs should exist in ../inputs and be a single var in a single file. These are just default inputs.
+	StringInput     *string  // inputs should exist in ../inputs and be a single var in a single file. These are just default inputs.
 	ExpectedOutputs []string // these determine pass/failure in case I come back to try and optimize a solution and fuck it up.
 }{
 	{
-		Solution: &Day1Solution{},
-		StringInput: &inputs.Day1,
+		Solution:        &Day1Solution{},
+		StringInput:     &inputs.Day1,
 		ExpectedOutputs: []string{"1226", "1252"},
 	},
 	{
-		Solution: &Day2Solution{},
-		StringInput: &inputs.Day2,
+		Solution:        &Day2Solution{},
+		StringInput:     &inputs.Day2,
 		ExpectedOutputs: []string{"1459206", "1320534480"},
+	},
+	{
+		Solution:        &Day3Solution{},
+		StringInput:     &inputs.Day3,
+		ExpectedOutputs: []string{"2640986", ""},
 	},
 }
