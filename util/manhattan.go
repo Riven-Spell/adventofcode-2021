@@ -12,7 +12,7 @@ var AdjacentVector2D = []Vector2D{
 	{1, 1},
 	{1, -1},
 	{0, -1}, // Y -1
-	{0, 1}, // Y 1
+	{0, 1},  // Y 1
 }
 
 type Vector2D struct {
@@ -35,16 +35,50 @@ func (p Vector2D) Rot(deg float64) Vector2D {
 	rads := deg * deg2Rad
 
 	return Vector2D{
-		X: int64(math.Round(float64(p.X) * math.Cos(rads) - float64(p.Y) * math.Sin(rads))),
-		Y: int64(math.Round(float64(p.Y) * math.Cos(rads) + float64(p.X) * math.Sin(rads))),
+		X: int64(math.Round(float64(p.X)*math.Cos(rads) - float64(p.Y)*math.Sin(rads))),
+		Y: int64(math.Round(float64(p.Y)*math.Cos(rads) + float64(p.X)*math.Sin(rads))),
 	}
 }
 
 func Manhattan(p1, p2 Vector2D) int64 {
-	return IntAbs(p2.X - p1.X) + IntAbs(p2.Y - p1.Y)
+	return IntAbs(p2.X-p1.X) + IntAbs(p2.Y-p1.Y)
+}
+
+func ProcessEachPoint(p1, p2 Vector2D, procFunc func(p Vector2D)) {
+	slope := Slope(p1, p2)
+	// rise over run
+	move := Vector2D{slope.Denominator, slope.Numerator}
+	pLoc := p1
+
+	// todo: is there a p1/p2 combo that will cause a endless loop?
+	for pLoc != p2 {
+		procFunc(pLoc)
+		pLoc = pLoc.Add(move)
+	}
+
+	procFunc(p2)
+}
+
+func HasSlope(p1, p2 Vector2D) bool {
+	// if X or Y is equal, it is horizontal or diagonal.
+	return p1.X != p2.X && p1.Y != p2.Y
 }
 
 func Slope(p1, p2 Vector2D) Fraction {
+	if !HasSlope(p1, p2) {
+		if p1.X == p2.X && p2.Y == p1.Y {
+			return Fraction{0, 0}
+		} else if p1.X == p2.X {
+			// It'll be processed as rise over run.
+			// Thus, a 0-denominated fraction is sensible.
+			sign := (p2.Y - p1.Y) / IntAbs(p2.Y-p1.Y)
+			return Fraction{1 * sign, 0}
+		} else {
+			sign := (p2.X - p1.X) / IntAbs(p2.X-p1.X)
+			return Fraction{0, 1 * sign}
+		}
+	}
+
 	f := Fraction{Numerator: p2.Y - p1.Y, Denominator: p2.X - p1.X}.Simplify()
 
 	if f.Numerator == 0 {
