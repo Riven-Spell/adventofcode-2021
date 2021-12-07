@@ -40,12 +40,6 @@ func (s *Day7Solution) Prepare(input string) {
 	sort.Sort(s)
 }
 
-func (s *Day7Solution) Part1() string {
-	return fmt.Sprint(s.Solve(func(moveSize int64) int64 {
-		return moveSize
-	}))
-}
-
 func (s *Day7Solution) Solve(calculateFuel func(moveSize int64) int64) int64 {
 	minPos := int64(math.MaxInt64)
 	maxPos := int64(math.MinInt64)
@@ -67,23 +61,17 @@ func (s *Day7Solution) Solve(calculateFuel func(moveSize int64) int64) int64 {
 		return sum
 	}
 
-	// The output will be V-shaped. In other words, there's a minimum within the input. Let's start by finding the lowest point in the input.
-	min := int64(math.MaxInt64)
-	startPoint := int64(-1)
-	for i := 0; i < len(s.crabs); i += len(s.crabs) / 100 { // look through every 1% of the output; we'll find a close approximate and we can home from there
-		sum := getFullFuel(s.crabs[i])
-		if sum < min {
-			min = sum
-			startPoint = s.crabs[i]
-		}
-	}
+	// Effectively binary-search our way through this.
+	startPoint := minPos + ((maxPos - minPos) / 2)
+	min := getFullFuel(startPoint)
 
 	// Which direction towards the minimum?
-	inc := util.TernaryInt64(getFullFuel(startPoint-1) < getFullFuel(startPoint+1), -1, 1) * ((maxPos - minPos) / 10)
+	inc := util.TernaryInt64(getFullFuel(startPoint-1) < getFullFuel(startPoint+1), -1, 1) * ((maxPos - minPos) / 2)
 
 	// Head towards the minimum.
 	for {
 		startPoint += inc
+		startPoint = util.ClampInt64(startPoint, minPos, maxPos)
 
 		if f := getFullFuel(startPoint); f < min {
 			min = f
@@ -103,6 +91,12 @@ func (s *Day7Solution) Solve(calculateFuel func(moveSize int64) int64) int64 {
 	return min
 }
 
+func (s *Day7Solution) Part1() string {
+	return fmt.Sprint(s.Solve(func(moveSize int64) int64 {
+		return moveSize
+	}))
+}
+
 func (s *Day7Solution) Part2() string {
 	target := s.crabs[len(s.crabs)-1] + 1
 	cache := make([]int64, target)
@@ -115,8 +109,6 @@ func (s *Day7Solution) Part2() string {
 	sum := func(move int64) int64 {
 		return cache[move]
 	}
-
-	//calculateFuel := calcFuelD7Part2
 
 	return fmt.Sprint(s.Solve(sum))
 }
