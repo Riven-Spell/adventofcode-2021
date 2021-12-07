@@ -41,27 +41,9 @@ func (s *Day7Solution) Prepare(input string) {
 }
 
 func (s *Day7Solution) Part1() string {
-	var tested = map[int64]bool{}
-
-	// the dumb solution is to just check every one
-	min := int64(math.MaxInt64)
-	for _, target := range s.crabs {
-		if _, ok := tested[target]; ok {
-			continue
-		}
-		tested[target] = true
-
-		sum := int64(0)
-		for _, crab := range s.crabs {
-			sum += util.IntAbs(crab - target)
-		}
-
-		if sum < min {
-			min = sum
-		}
-	}
-
-	return fmt.Sprint(min)
+	return fmt.Sprint(s.Solve(func(moveSize int64) int64 {
+		return moveSize
+	}))
 }
 
 func (s *Day7Solution) Solve(calculateFuel func(moveSize int64) int64) int64 {
@@ -88,7 +70,7 @@ func (s *Day7Solution) Solve(calculateFuel func(moveSize int64) int64) int64 {
 	// The output will be V-shaped. In other words, there's a minimum within the input. Let's start by finding the lowest point in the input.
 	min := int64(math.MaxInt64)
 	startPoint := int64(-1)
-	for i := 0; i < len(s.crabs); i += len(s.crabs) / 20 { // look through every 5% of the output; we're bound to find something.
+	for i := 0; i < len(s.crabs); i += len(s.crabs) / 100 { // look through every 1% of the output; we'll find a close approximate and we can home from there
 		sum := getFullFuel(s.crabs[i])
 		if sum < min {
 			min = sum
@@ -97,7 +79,7 @@ func (s *Day7Solution) Solve(calculateFuel func(moveSize int64) int64) int64 {
 	}
 
 	// Which direction towards the minimum?
-	inc := util.TernaryInt64(getFullFuel(startPoint-1) < getFullFuel(startPoint+1), -1, 1)
+	inc := util.TernaryInt64(getFullFuel(startPoint-1) < getFullFuel(startPoint+1), -1, 1) * ((maxPos - minPos) / 10)
 
 	// Head towards the minimum.
 	for {
@@ -106,6 +88,14 @@ func (s *Day7Solution) Solve(calculateFuel func(moveSize int64) int64) int64 {
 		if f := getFullFuel(startPoint); f < min {
 			min = f
 		} else {
+			if abs := util.IntAbs(inc); abs != 1 { // We overshot
+				if abs > 1 {
+					inc /= -2
+				}
+				min = f
+				continue
+			}
+
 			break
 		}
 	}
@@ -114,13 +104,19 @@ func (s *Day7Solution) Solve(calculateFuel func(moveSize int64) int64) int64 {
 }
 
 func (s *Day7Solution) Part2() string {
-	calculateFuel := func(moveSize int64) int64 {
-		sum := int64(0)
-		for i := int64(1); i <= moveSize; i++ {
-			sum += i
-		}
-		return sum
+	target := s.crabs[len(s.crabs)-1] + 1
+	cache := make([]int64, target)
+
+	// precompute the maximum summation
+	for i := int64(1); i < target; i++ {
+		cache[i] = cache[i-1] + i
 	}
 
-	return fmt.Sprint(s.Solve(calculateFuel))
+	sum := func(move int64) int64 {
+		return cache[move]
+	}
+
+	//calculateFuel := calcFuelD7Part2
+
+	return fmt.Sprint(s.Solve(sum))
 }
