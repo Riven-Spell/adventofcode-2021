@@ -4,12 +4,25 @@ import (
 	"fmt"
 	"github.com/Virepri/adventofcode-2021/util"
 	"math"
+	"sort"
 	"strconv"
 	"strings"
 )
 
 type Day7Solution struct {
 	crabs []int64
+}
+
+func (s *Day7Solution) Len() int {
+	return len(s.crabs)
+}
+
+func (s *Day7Solution) Less(i, j int) bool {
+	return s.crabs[i] < s.crabs[j]
+}
+
+func (s *Day7Solution) Swap(i, j int) {
+	s.crabs[i], s.crabs[j] = s.crabs[j], s.crabs[i]
 }
 
 func (s *Day7Solution) Prepare(input string) {
@@ -22,6 +35,9 @@ func (s *Day7Solution) Prepare(input string) {
 		util.PanicIfErr(err)
 		s.crabs = append(s.crabs, f)
 	}
+
+	// sort the crabs
+	sort.Sort(s)
 }
 
 func (s *Day7Solution) Part1() string {
@@ -72,11 +88,11 @@ func (s *Day7Solution) Solve(calculateFuel func(moveSize int64) int64) int64 {
 	// The output will be V-shaped. In other words, there's a minimum within the input. Let's start by finding the lowest point in the input.
 	min := int64(math.MaxInt64)
 	startPoint := int64(-1)
-	for _, i := range s.crabs {
-		sum := getFullFuel(i)
+	for i := 0; i < len(s.crabs); i += len(s.crabs) / 20 { // look through every 5% of the output; we're bound to find something.
+		sum := getFullFuel(s.crabs[i])
 		if sum < min {
 			min = sum
-			startPoint = i
+			startPoint = s.crabs[i]
 		}
 	}
 
