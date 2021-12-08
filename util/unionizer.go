@@ -10,10 +10,19 @@ type Unionizer struct {
 	A, B, Union map[interface{}]bool
 }
 
-func NewUnion() Unionizer {
-	return Unionizer{
-		A: map[interface{}]bool{},
-		B: map[interface{}]bool{},
+func QuickUnion(a, b interface{}) *Unionizer {
+	u := NewUnion()
+
+	u.AddItemsA(a)
+	u.AddItemsB(b)
+
+	return u
+}
+
+func NewUnion() *Unionizer {
+	return &Unionizer{
+		A:     map[interface{}]bool{},
+		B:     map[interface{}]bool{},
 		Union: map[interface{}]bool{},
 	}
 }
@@ -22,12 +31,12 @@ func (u *Unionizer) Len() int {
 	return len(u.A) + len(u.B) + len(u.Union)
 }
 
-func (u *Unionizer) Join(u2 Unionizer) Unionizer {
+func (u *Unionizer) Join(u2 Unionizer) *Unionizer {
 	out := NewUnion()
-	
+
 	out.AddItemsA(u.GetUnion())
 	out.AddItemsB(u2.GetUnion())
-	
+
 	return out
 }
 
@@ -35,7 +44,7 @@ func (u *Unionizer) Contains(i interface{}) bool {
 	_, okA := u.A[i]
 	_, okB := u.B[i]
 	_, okU := u.Union[i]
-	
+
 	return okA || okB || okU
 }
 
@@ -45,7 +54,7 @@ func (u *Unionizer) ForEachUnique(each func(i interface{}) bool) {
 			break
 		}
 	}
-	
+
 	for k, _ := range u.B {
 		if !each(k) {
 			break
@@ -68,8 +77,28 @@ func (u *Unionizer) ForEach(each func(i interface{}) bool) {
 
 func (u *Unionizer) GetUnion() []interface{} {
 	out := make([]interface{}, 0)
-	
+
 	for k := range u.Union {
+		out = append(out, k)
+	}
+
+	return out
+}
+
+func (u *Unionizer) GetUniqueA() []interface{} {
+	out := make([]interface{}, 0)
+
+	for k := range u.A {
+		out = append(out, k)
+	}
+
+	return out
+}
+
+func (u *Unionizer) GetUniqueB() []interface{} {
+	out := make([]interface{}, 0)
+
+	for k := range u.B {
 		out = append(out, k)
 	}
 
@@ -89,15 +118,15 @@ func (u *Unionizer) RemoveItems(itemList interface{}) {
 			delete(u.A, val)
 			continue
 		}
-		
+
 		_, okB := u.B[val]
-		
+
 		if okB {
 			delete(u.B, val)
 		}
-		
+
 		_, okU := u.Union[val]
-		
+
 		if okU {
 			delete(u.Union, val)
 		}
@@ -110,10 +139,12 @@ func (u *Unionizer) AddItemsA(itemList interface{}) {
 
 	for i := 0; i < rLen; i++ {
 		val := rList.Index(i).Interface()
-		
-		_,okB := u.B[val]
-		
-		if okB {
+
+		_, okB := u.B[val]
+		_, okU := u.Union[val]
+
+		if okU {
+		} else if okB {
 			delete(u.B, val)
 			u.Union[val] = true
 		} else {
@@ -125,13 +156,15 @@ func (u *Unionizer) AddItemsA(itemList interface{}) {
 func (u *Unionizer) AddItemsB(itemList interface{}) {
 	rList := reflect.ValueOf(itemList)
 	rLen := rList.Len()
-	
+
 	for i := 0; i < rLen; i++ {
 		val := rList.Index(i).Interface()
-		
-		_,okA := u.A[val]
-		
-		if okA {
+
+		_, okA := u.A[val]
+		_, okU := u.Union[val]
+
+		if okU {
+		} else if okA {
 			delete(u.A, val)
 			u.Union[val] = true
 		} else {

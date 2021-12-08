@@ -3,7 +3,6 @@ package solutions
 import (
 	"fmt"
 	"github.com/Virepri/adventofcode-2021/util"
-	"math"
 	"sort"
 	"strconv"
 	"strings"
@@ -41,16 +40,8 @@ func (s *Day7Solution) Prepare(input string) {
 }
 
 func (s *Day7Solution) Solve(calculateFuel func(moveSize int64) int64) int64 {
-	minPos := int64(math.MaxInt64)
-	maxPos := int64(math.MinInt64)
-	for _, v := range s.crabs {
-		if v > maxPos {
-			maxPos = v
-		}
-		if v < minPos {
-			minPos = v
-		}
-	}
+	minPos := s.crabs[0]
+	maxPos := s.crabs[len(s.crabs)-1]
 
 	getFullFuel := func(pos int64) int64 {
 		sum := int64(0)
