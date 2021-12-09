@@ -15,6 +15,13 @@ var AdjacentVector2D = []Vector2D{
 	{0, 1},  // Y 1
 }
 
+var ImmediateAdjacentVector2D = []Vector2D{
+	{1, 0},
+	{-1, 0},
+	{0, 1},
+	{0, -1},
+}
+
 type Vector2D struct {
 	X, Y int64
 }

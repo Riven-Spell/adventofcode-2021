@@ -27,3 +27,6 @@ var Day7 string
 
 //go:embed Day8.txt
 var Day8 string
+
+//go:embed Day9.txt
+var Day9 string
