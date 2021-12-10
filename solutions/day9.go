@@ -126,15 +126,12 @@ func (s *Day9Solution) Part2() string {
 				size++
 			}
 
-			fmt.Println("Found basin size", size, pos)
-
 			// insert the basin
 			basins = append(basins, size)
 		}
 	}
 
 	sort.Ints(basins)
-	fmt.Println(basins)
 
 	return fmt.Sprint(basins[len(basins)-3] * basins[len(basins)-2] * basins[len(basins)-1])
 }
