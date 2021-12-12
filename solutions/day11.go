@@ -77,7 +77,6 @@ func (s *Day11Solution) Part1() string {
 			// Pop the queue
 			val := flashing[0]
 			flashing = flashing[1:]
-			fmt.Println("Flashed", val)
 			// Count the flash
 			totalFlashes++
 			state[val.Y][val.X] = 0
@@ -103,8 +102,6 @@ func (s *Day11Solution) Part1() string {
 			}
 		}
 	}
-
-	s.PrintBoard(state)
 
 	return fmt.Sprint(totalFlashes)
 }
@@ -137,7 +134,6 @@ func (s *Day11Solution) Part2() string {
 			// Pop the queue
 			val := flashing[0]
 			flashing = flashing[1:]
-			fmt.Println("Flashed", val)
 			// Count the flash
 			totalFlashes++
 			state[val.Y][val.X] = 0
